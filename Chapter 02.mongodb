@@ -1,0 +1,77 @@
+// MongoDB Playground
+// To disable this template go to Settings | MongoDB | Use Default Template For Playground.
+// Make sure you are connected to enable completions and to be able to run a playground.
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
+
+// Exercise 2.01 Creating your own JSON Document
+
+//create a movice database
+
+Select the database to use.
+
+use('moviesDB');
+
+//drop a collection if exists
+
+db.movies.drop();
+
+//insert a movie document to a collection called movie
+
+db.movies.insertOne(
+{
+	"id": 14235,
+	"title": "Beauty and the Beast",
+	"year": 2016,
+	"language": "English",
+	"imdb_rating": 6.4,
+	"genre": "Romance",
+	"director": "Christopher Gans",
+	"runtime": 112
+});
+
+//insert into another document
+
+db.movies.insertOne({
+  "id": 12346,
+  "title": "Monk",
+  "languge": "English",
+  "imdb": {
+    "rating": 6.4,
+    "votes": 17667
+  },
+  "tomotoes":{
+    "views": {
+      "rating": 3.9,
+      "votes": 238
+    },
+    "critic": {
+      "rating": 4.3,
+      "votes": 8
+    },
+    "fresh": 96,
+    "rotten": 7  
+}}
+)
+
+// use array fields
+
+db.movies.insertOne({
+  "id": 12348,
+  "comments": [
+    {
+      "name": "Talisa Megery",
+      "email": "tmeg@game.com",
+      "text": "I really like the movie!",
+      "date": "2022-02-02T07:34:22Z"
+    },
+    {
+      "name": "Art Smith",
+      "email": "asmith@game.com",
+      "text": "Excellent movie!",
+      "date": "2021-03-08T22:10:35Z"
+    }
+  ]
+})
+
+
+

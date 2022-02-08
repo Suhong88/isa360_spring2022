@@ -1,0 +1,65 @@
+/* Upload a repository to gitub */
+
+Instruction: 
+//assume you want to upload a directory named ISA360_Fall2022 to github
+
+// Create a new repository with the same name (ISA360_Fall2022) on the github
+
+// Go to the directory in which you want to upload to the github
+
+//Create a read me file
+
+echo "# Course Materials for ISA360 Spring 2022" >> README.md
+
+//check all files under this directory (include hidden files)
+
+dir /a
+
+// initiate a git repository
+
+git init
+
+//check the files again. You will see a .git directory is added
+
+dir /a
+
+//check status
+
+git status
+
+//add all files to be tracked
+
+git add .
+
+//commit the changes with adding a comment
+
+git commit -m "first commit"
+
+//rename branch as Main
+
+git branch -M main
+
+//add remote branch
+git remote add origin https://github.com/Suhong88/isa360_fall2022.git
+
+
+// you may be asked to verfiy your github account. 
+//push local branch to github
+
+git push -u origin main 
+
+// After modifying your directory ( for example add a data folder), perform the following steps to commit your change
+
+git add .
+git commit -m "add a data foler"
+git push
+
+
+/*if you have problem push content to github, you may need to remove windows credential related to git.
+
+1 Open Control Panel from the Start menu. 
+2 Select User Accounts. 
+3 Select the "Credential Manager". 
+4 Click on "Manage Windows Credentials". 
+5 Delete any credentials related to Git or GitHub. 
+6 Once you deleted all then try to clone again. */

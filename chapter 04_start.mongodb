@@ -1,0 +1,249 @@
+//Basic MongoDB Queries. In the MongoDB playground, the default datbase is test,
+//we can only work with collections saved in test
+//we cannot switch to any other database!
+
+//find a document with a condition.
+//find all comments made by Cameron Duran
+
+
+
+// exclude _id in the result
+
+
+
+
+
+// finding the distinct fields
+//find all unique types of rated in the movies collection
+
+
+
+
+//find all the uniques ratings of the films that were released in 1994
+
+
+
+
+
+// counting the documents in Movies collection. It will not physically count the documents. Instead, it will read through the collection's
+// metadata and return the count
+
+
+
+
+// count all movies are released in 1994
+
+
+
+
+// do an exact count
+
+
+
+
+// If you have a huge document, you can use estimateDocumentCount
+
+
+
+
+//conditional operators: $eq, $ne
+// find all movies that have 5 comments and disply title.
+
+
+
+
+// Greater than $gt and greater than or equal to $gte
+
+//find the number of the movies that were released after 2015
+
+
+
+
+//less than $lt and less than or equal to $lte
+
+// find the number of the movies released before 21st century (since January 1,2000)
+
+
+
+
+//in $in and not in $nin
+//find all movies that were rated as G, PG, or PG-13.
+
+
+
+
+//find all movies that were not rated as G, PG, or PG-13.
+
+
+
+
+
+// logical operators $and, $or, $nor, $not
+// need to put multiple conditions in an array
+// find all unrated movies that were released in year 2008.
+
+
+
+
+
+// the $and operator is implicit and included by default
+
+
+
+
+
+// find all movies that were rated as G, released in 2005, or have great than 100 comments.
+
+
+
+
+// $nor is the opposite way of $or
+
+
+
+
+//find all movies where cast includes Leonardo DiCaprio, 
+//director is Martin Scorsese, and gender is either Drama or Crime
+//display title, year, case, director, genres.
+
+
+
+
+
+//Regular Expressions. It is case sensitive
+
+//find all movies where title inlcudes Opera and display title, directors and year
+
+
+
+
+//using the caret(^) operator
+//find all movies where title starts with Opera and display title, directors and year
+
+
+
+
+//using the dollar($) operator
+//find all movies where title ends with Opera and display title, directors and year
+
+
+
+
+
+//find all movies start with a number
+
+
+
+
+//find all movies start with two numbers
+
+
+
+
+//find all movies starting with number and include word Street
+
+
+
+
+//case-insentive search
+
+
+
+
+
+
+//query arrays and nested documents
+//finding an array by an element
+//find movies where cast includes Charles Chaplin and Edna Purviance and display title and cast.
+
+
+
+
+
+
+//search by array, the order mattters
+//find all movies whose genres are Drama and Crime and display the title and genres.
+
+
+
+
+/* search an array with the $all operator. It will finds all
+ documents where the value of the field contains all the elements. */
+
+
+
+
+
+
+//Projecting matching elements by their index position ($slice)
+//Find all movies that title includes "Princess" and display title and genres.
+
+
+
+//Find all movies that title includes "Princess" and display title and the first genres.
+
+
+
+
+//Find all movies that title includes "Princess" and display title and the first two genres.
+
+
+
+
+//return the last two elements only
+
+
+
+
+//starting at second element and pick 2
+
+
+
+
+
+//Query nested objects. Can be accessed using dot.
+//find all movies that win at least 10 awards. Display title and awards.
+
+
+
+
+
+//compound condition
+//find all movies that win at least 10 awards and 6 nominations. Display title and awards.
+
+
+
+
+
+//limit 
+//disply the title of the first 5 movies
+
+
+
+
+
+//skipping document
+//disply the title of the 5 movies starting at sixth document
+
+
+
+
+//sorting documents. 1: ascending, -1: descending
+// Sort the movies based on title, and display the title of the first 5 movies
+
+
+
+
+
+//Sort the movies in decending order
+
+
+
+
+
+
+//sort based on multiple sorting keys
+//disaply the top five movies based on number of awards win and then nominations. 
+
+
+
