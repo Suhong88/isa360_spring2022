@@ -1,0 +1,51 @@
+/* This assignment is based on sample airbnb dataset. 
+
+Please complete the following five queries. Submit the completed mongodb file on canvas.
+For each question, please copy the result at the end. If there is multiple documents, 
+you only need to copy one.
+
+Below is an example.
+ */
+
+//example: find all listings that has more than 200 reviews. Display listing URL, name, and number of reviews.
+
+db.airbnbListings.find(
+    {"number_of_reviews": {
+        $gt: 200
+    }},
+    {
+        "listing_url":1,
+        "name":1,
+        "number_of_reviews":1,
+        "_id":0
+    }
+)
+
+
+/* result.
+{
+    "listing_url": "https://www.airbnb.com/rooms/10140368",
+    "name": "A bedroom far away from home",
+    "number_of_reviews": 239
+  },
+*/
+
+// question 1. Display a list of countries that are available in the airbnb documents.
+
+
+
+/*question 2. find all listings where number_of_reviews is over 400 and price is less than 100. 
+Display property listing url, name, number of reviews, price and host location. */
+
+
+
+// Question 3: find the total number of listings located in Hawaii (based on host.host_location).
+
+
+
+/* question 4. find number of the listings in Hawaii where review score for both location 
+and cleanliness is 10. Display listing url, name, reivew_scores, and host location. */
+
+
+/* Question 5. List all types of property for the listings in Australia. 
+Sort the list by property type in ascending order */
