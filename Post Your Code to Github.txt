@@ -5,7 +5,13 @@ Instruction:
 
 // Create a new repository with the same name (ISA360_Fall2022) on the github
 
+//create a directory under users/student (your Window root directory)
+
+mkdir yourDirectory
+
 // Go to the directory in which you want to upload to the github
+
+cd yourDirectory
 
 //Create a read me file
 
@@ -35,6 +41,13 @@ git add .
 
 git commit -m "first commit"
 
+//NOTE: The first time, you will need to configure your name and email, execute the following config command
+
+git config --global user.email "your email"
+
+git config --global user.name "your name"
+
+
 //rename branch as Main
 
 git branch -M main
@@ -43,7 +56,8 @@ git branch -M main
 git remote add origin https://github.com/Suhong88/isa360_fall2022.git
 
 
-// you may be asked to verfiy your github account. 
+// NOTE you may be asked to verfiy your github account. Please follow the instruction to log on your github accout
+
 //push local branch to github
 
 git push -u origin main 
