@@ -1,0 +1,405 @@
+//Basic MongoDB Queries. In the MongoDB playground, the default datbase is test,
+//we can only work with collections saved in test
+//we cannot switch to any other database!
+
+//find a document with a condition.
+//find all comments made by Cameron Duran
+
+db.comments.findOne();
+
+db.comments.find(
+    {"name": "Cameron Duran"},
+    {"name":1, 
+    "text": 1,
+    "date":1}
+)
+
+// exclude _id in the result
+
+db.comments.find(
+    {"name": "Cameron Duran"},
+    {"name":1, 
+    "text": 1,
+    "date":1,
+    "_id": 0}
+)
+
+
+// finding the distinct fields
+//find all unique types of rated in the movies collection
+
+db.movies.findOne();
+
+db.movies.distinct("rated")
+
+//find all the uniques ratings of the films that were released in 1994
+
+db.movies.distinct("rated", {"year": 1994})
+
+// counting the documents in Movies collection. It will not physically count the documents. Instead, it will read through the collection's
+// metadata and return the count
+
+db.movies.count()
+
+// count all movies are released in 1994
+
+db.movies.count({"year": 1994})
+
+// do an exact count
+
+db.movies.countDocuments({})
+
+db.movies.countDocuments({"year": 1994})
+
+// If you have a huge document, you can use estimateDocumentCount
+
+db.movies.estimatedDocumentCount()
+
+
+//conditional operators: $eq, $ne
+// find all movies that have 5 comments and disply title.
+
+db.movies.findOne()
+
+db.movies.find(
+    {
+        "num_mflix_comments": {$eq:5}
+    },
+        {"title":1, "_id":0}
+)
+
+// Greater than $gt and greater than or equal to $gte
+
+//find the number of the movies that were released after 2015
+
+db.movies.find(
+    {
+        year: {$gte: 2015}
+    }
+).count()
+
+//less than $lt and less than or equal to $lte
+
+// find the number of the movies released before 21st century (since January 1,2000)
+
+db.movies.find(
+    {
+        released: {$lte: new Date('2000-01-01')}
+    },
+    {
+        "title":1,
+        "released":1,
+        "_id":0
+    }
+).count()
+
+//in $in and not in $nin
+//find all movies that were rated as G, PG, or PG-13.
+
+db.movies.find(
+    {"rated":
+    {$in: ["G", "PG", "PG-13"]}
+    },
+    {
+        "title": 1,
+        "rated":1,
+        "_id":0
+    } 
+)
+
+//find all movies that were not rated as G, PG, or PG-13.
+
+db.movies.find(
+    {"rated":
+    {$nin: ["G", "PG", "PG-13"]}
+}
+)
+
+// logical operators $and, $or, $nor, $not
+// need to put multiple conditions in an array
+// find all unrated movies that were released in year 2008.
+
+db.movies.countDocuments(
+    {
+        $and: [{"rated": "UNRATED"}, {"year": 2008}]
+    }
+)
+
+// the $and operator is implicit and included by default
+
+db.movies.countDocuments(    
+       {"rated": "UNRATED"}, {"year": 2008}  
+)
+
+// find all movies that were rated as G, released in 2005, or have great than 100 comments.
+
+db.movies.find(
+    {
+        $or: [
+            {"rated": "G"},
+            {"year": 2005},
+            {"number_mflix_comments": {$gte: 100}}
+        ]
+    }
+)
+
+// $nor is the opposite way of $or
+
+db.movies.find(
+    {
+        $nor: [
+            {"rated": "G"},
+            {"year": 2005},
+            {"number_mflix_comments": {$gte: 5}}
+        ]
+    }
+)
+
+
+//find all movies where cast includes Leonardo DiCaprio, 
+//director is Martin Scorsese, and gender is either Drama or Crime
+//display title, year, case, director, genres.
+
+db.movies.find({
+    "cast": "Leonardo DiCaprio",
+    "directors": "Martin Scorsese",
+    "$or":[{"genres": "Drama"}, {"genres": "Crime"}]},
+    {"title":1, "year":1, "cast":1, "directors":1, "genres":1, "_id":0}
+)
+
+//Regular Expressions. It is case sensitive
+
+//find all movies where title inlcudes Opera and display title, directors and year
+
+db.movies.find(
+    {"title":{"$regex": "Opera"}},
+    {"title":1, "_id":0, "directors":1, "year":1}
+)
+
+//using the caret(^) operator
+//find all movies where title starts with Opera and display title, directors and year
+
+db.movies.find(
+    {"title":{"$regex": "^Opera"}},
+    {"title":1, "_id":0, "directors":1, "year":1}
+)
+
+//using the dollar($) operator
+//find all movies where title ends with Opera and display title, directors and year
+
+db.movies.find(
+    {"title":{"$regex": "Opera$"}},
+    {"title":1, "_id":0, "directors":1, "year":1}
+)
+
+//find all movies start with a number
+db.movies.find(
+    {"title":{"$regex": "^[1-9]"}},
+    {"title":1, "_id":0, "directors":1, "year":1}
+)
+
+//find all movies start with two numbers
+
+db.movies.find(
+    {"title":{"$regex": "^[1-9][1-9]"}},
+    {"title":1, "_id":0, "directors":1, "year":1}
+)
+
+//find all movies starting with number and include word Street
+
+db.movies.find({$and: [
+    {"title":{"$regex": "^[1-9]"}},
+    {"title": {"$regex": "Street"}}]},
+    {"title":1, "_id":0, "directors":1, "year":1}
+)
+//case-insentive search
+
+db.movies.find({$and: [
+    {"title":{"$regex": "^[1-9]"}},
+    {"title": {"$regex": "Street", $options: "i"}}]},
+    {"title":1, "_id":0, "directors":1, "year":1}
+)
+
+
+//query arrays and nested documents
+//finding an array by an element
+//find movies where cast includes Charles Chaplin and Edna Purviance and display title and cast.
+
+db.movies.find(
+    {$and:[
+    {"cast": "Charles Chaplin"},
+    {"cast": "Edna Purviance"}]
+    }, 
+    {"cast":1, 
+    "title":1,
+    "_id":0}
+);
+
+db.movies.find({"cast":
+    {$all:["Charles Chaplin", "Edna Purviance"]}}, 
+    {"cast":1, "_id":0}
+)
+
+//search by array, the order mattters
+//find all movies whose genres are Drama and Crime and display the title and genres.
+
+db.movies.find(
+    {"genres": ["Drama", "Crime"]},
+    {"genres":1, "title":1, "_id":0}
+)
+
+db.movies.find(
+    {"genres": ["Crime", "Drama"]},
+    {"genres":1, "title":1, "_id":0}
+)
+
+/* search an array with the $all operator. It will finds all
+ documents where the value of the field contains all the elements. */
+
+db.movies.find({
+    "genres":{$all:["Crime", "Drama"]}
+}, {"genres":1, "title":1, "_id": 0})
+
+
+
+//Projecting matching elements by their index position ($slice)
+//Find all movies that title includes "Princess" and display title and genres.
+
+db.movies.find(
+    {"title": {"$regex": "Princess"}},
+    {"title":1,
+    "genres":1,
+    "_id":0
+    }
+)
+
+//Find all movies that title includes "Princess" and display title and the first genres.
+
+db.movies.find(
+    {"title": {"$regex": "Princess"}},
+    {"title":1,
+    "genres":{"$slice":1},
+    "_id":0
+    }
+)
+
+//Find all movies that title includes "Princess" and display title and the first two genres.
+
+db.movies.find(
+    {"title": {"$regex": "Princess"}},
+    {"title":1,
+    "genres":{"$slice":2},
+    "_id":0
+    }
+)
+
+//return the last two elements only
+db.movies.find(
+    {"title": {"$regex": "Princess"}},
+    {"title":1,
+    "genres":{"$slice":-2},
+    "_id":0
+    }
+)
+
+//starting at second element and pick 2
+
+db.movies.find(
+    {"title": {"$regex": "Princess"}},
+    {"title":1,
+    "genres":{"$slice":[1,2]},
+    "_id":0
+    }
+)
+
+//Query nested objects. Can be accessed using dot.
+//find all movies that win at least 10 awards. Display title and awards.
+
+db.movies.find(
+    {"awards.wins": {$gte: 10}},
+    {"awards":1, 
+     "title":1,
+    "_id":0}
+)
+
+
+//compound condition
+//find all movies that win at least 10 awards and 6 nominations. Display title and awards.
+
+db.movies.find(
+    {"awards.wins": {$gte: 10}, 
+     "awards.nominations": 6},
+    {"awards":1, "title":1, "_id":0}
+)
+
+
+//limit 
+//disply the title of the first 5 movies
+
+db.movies.find(
+    {},
+    {"title":1, "_id": 0}
+).limit(5)
+
+//skipping document
+//disply the title of the 5 movies starting at sixth document
+
+db.movies.find(
+    {},
+    {"title":1, "_id": 0}
+).skip(5).limit(5)
+
+//sorting documents. 1: ascending, -1: descending
+// Sort the movies based on title, and display the title of the first 5 movies
+
+db.movies.find(
+    {},
+    {"title":1, "_id": 0}
+).sort({"title":1}).limit(5)
+
+
+//Sort the movies in decending order
+
+db.movies.find(
+    {},
+    {"title":1, "_id": 0}
+).sort({"title":-1}).limit(5)
+
+
+//sort based on multiple sorting keys
+//disaply the top five movies based on number of awards win and then nominations. 
+
+db.movies.find(
+    {},
+    {"title":1, 
+    "awards":1,
+     "_id": 0}
+).sort({
+    "awards.wins":-1,
+    "awards.nominations":-1
+}).limit(5)
+
+//find top 10 words in title of all movies for each genre
+
+const pipeline=[
+    {$addFields: {
+        "titleArray": {$split: ["$title", " "]}
+    }},
+    {$unwind: "$titleArray"},
+    {$unwind: "$genres"},
+    {$group: {
+        _id: {"genre": "$genres", "word":"$titleArray"},
+        count: {$sum:1}
+    }},
+    {$sort: {"count":-1}},
+    {$group: {
+        _id: "$_id.genre",
+        "words": {$push: {"word": "$_id.word", "count": "$count"}}
+    }},
+    {$project: {
+        "top_10_words": {$slice: ["$words",0,10]}
+    }},
+    {$out: "top10Words"}   
+]
+
+db.movies.aggregate(pipeline)
