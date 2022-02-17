@@ -13,15 +13,15 @@ import time
 import os
 import sys
  
-MONGO_HOST= 'mongodb://localhost:27017/tweetsDB'  # assuming you have mongoDB installed locally
-                                             # and you want to install tweets on a databse called tweetsDB
+MONGO_HOST= 'mongodb://localhost:27017/test'  # assuming you have mongoDB installed locally
+                                             # and you want to install tweets on a databse called test
  
 WORDS = ["#climatechange", "#climatechangeisreal", "#globalwarming", "climate change"]   # choose a keyword or a list of keyword you want to investigage
  
-CONSUMER_KEY= '**'
-CONSUMER_SECRET= '**'
-ACCESS_TOKEN= '**'
-ACCESS_TOKEN_SECRET= '**'
+CONSUMER_KEY= 'LFmIGtWps2ZLk5JKXVL5ijUXf'
+CONSUMER_SECRET= 'JDOgLRxbEh33u2VNF1lnBt8IZeYIX6HnLA4NqzS4nHElGbsael'
+ACCESS_TOKEN= '1171931253978873856-04YrTfwKPc9eH7Npjnr6xKJuCnuuhU'
+ACCESS_TOKEN_SECRET= '12d9dVel67XACAriVRbQBXxa31r5eodWhOaxw9tKQZo4B'
  
 class StreamListener(tweepy.StreamListener):    
     #This is a class provided by tweepy to access the Twitter Streaming API. 
@@ -40,8 +40,8 @@ class StreamListener(tweepy.StreamListener):
         try:
             client = MongoClient(MONGO_HOST)
             
-            # Use twitterdb database. If it doesn't exist, it will be created.
-            db = client.tweetsDB
+            # Use test database. If it doesn't exist, it will be created.
+            db = client.test
     
             # Decode the JSON from Twitter
             datajson = json.loads(data)
