@@ -18,10 +18,10 @@ MONGO_HOST= 'mongodb://localhost:27017/test'  # assuming you have mongoDB instal
  
 WORDS = ["#climatechange", "#climatechangeisreal", "#globalwarming", "climate change"]   # choose a keyword or a list of keyword you want to investigage
  
-CONSUMER_KEY= 'LFmIGtWps2ZLk5JKXVL5ijUXf'
-CONSUMER_SECRET= 'JDOgLRxbEh33u2VNF1lnBt8IZeYIX6HnLA4NqzS4nHElGbsael'
-ACCESS_TOKEN= '1171931253978873856-04YrTfwKPc9eH7Npjnr6xKJuCnuuhU'
-ACCESS_TOKEN_SECRET= '12d9dVel67XACAriVRbQBXxa31r5eodWhOaxw9tKQZo4B'
+CONSUMER_KEY= '**'
+CONSUMER_SECRET= '**'
+ACCESS_TOKEN= '**'
+ACCESS_TOKEN_SECRET= '**'
  
 class StreamListener(tweepy.StreamListener):    
     #This is a class provided by tweepy to access the Twitter Streaming API. 
