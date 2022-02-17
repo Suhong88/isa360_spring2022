@@ -9,6 +9,9 @@ from __future__ import print_function
 import tweepy
 import json
 from pymongo import MongoClient
+import time
+import os
+import sys
  
 MONGO_HOST= 'mongodb://localhost:27017/tweetsDB'  # assuming you have mongoDB installed locally
                                              # and you want to install tweets on a databse called tweetsDB
