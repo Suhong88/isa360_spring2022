@@ -1,0 +1,68 @@
+/* MongoDB assignment 2: Data Aggregation. This exercise is based on airbnbListings collection
+Due Date: Thursday  2/24 at midnight. 
+Please complete the following five queries. Submit the completed mongodb script file on canvas.
+For each question, please copy the result at the end. If there is multiple records, 
+you only need to copy the first three records.
+Below is an example.
+ */
+
+ // display the number of listings by country. Sort the result by total listings.
+const pipeline=[
+    {$group: {
+        _id: "$address.country",
+         "totalListings": {$sum:1}     
+    }},
+    {$sort: {"totalListings":-1}}
+]
+
+db.airbnbListings.aggregate(pipeline)
+
+
+/*result
+[
+  {
+    "_id": "United States",
+    "totalListings": 1222
+  },
+  {
+    "_id": "Turkey",
+    "totalListings": 661
+  },
+  {
+    "_id": "Canada",
+    "totalListings": 649
+  },
+  {
+    "_id": "Spain",
+    "totalListings": 633
+  },
+  {
+    "_id": "Australia",
+    "totalListings": 610
+  },
+*/
+
+// 1. display the three most frequent type of property listed with airbnb?
+
+
+/*2. Display the average price, highest price and lowest price of the property by country. 
+     Sort the result by average price in decending order.
+     format all three price as integer.
+*/
+
+
+/* 3. For all listing in the United States, 
+Display top 10 cities (use address.street) that have the most expensive average price? 
+format average price with two decimal places*/
+
+
+/* 4. List top 10 property type baesd on numer of listings. Display total listings, average 
+ number of reviews, and average price for each property type. Format average number of reviews as integer,
+and average price with 2 decimal places*/
+
+
+
+
+/* 5. For apartment type in each country, what property is the most expensive? 
+Display average price in that countyr, listing url, name, summary, price, 
+and number of reviews of that property. */

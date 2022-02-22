@@ -1,0 +1,131 @@
+// MongoDB Playground
+//Creating aggregations functions
+//Run below script on the MongoDB shell
+
+var simpleFind= function() {
+print("Find Result:")
+db.theaters.find(
+    {"location.address.state": "MN"},
+    {"location.address.city": 1})
+    .sort({"location.address.city": 1})
+    .limit(3)
+    .forEach(printjson)
+}
+
+//execute the function
+
+simpleFind()
+
+//create aggregation
+var simpleFindAggrgate=function(){
+    print("aggregation Result:")
+    var pipeline=[
+        {$match: {"location.address.state": "MN"}},
+        {$project: {"location.address.city": 1}},
+        {$sort: {"location.address.city": 1}},
+        {$limit: 3}
+    ];
+    db.theaters.aggregate(pipeline).forEach(printjson)
+};
+
+simpleFindAggrgate();
+
+// Below command can be run in visual studio code
+/*1. find top 3 movies based on imdb rating for all movies
+in romantic category and released before 2001. 
+Display title, genres, released, and imdb.rating
+sort the result with the highest rating first*/
+
+
+
+
+
+db.movies.aggregate(pipeline)
+
+
+//The Group Stage
+//2. Display number of titles/movies by rated category.
+
+
+
+
+
+db.movies.aggregate(pipeline)
+
+//3. Display top 5 rated category based on number of movies
+
+
+
+db.movies.aggregate(pipeline)
+
+//top one is null, remove null
+
+
+
+db.movies.aggregate(pipeline)
+
+
+/* display top 5 rated movies based on number of moives in that category. 
+Display movie title, total movies, total run time and average run time.
+*/
+
+
+
+
+db.movies.aggregate(pipeline)
+
+
+//format average run time as integer
+
+
+
+db.movies.aggregate(pipeline)
+
+
+/* for only movies older than 2001, find the average and highest rating
+for each genre (use the first genre in the array), 
+sort the genre by average rating, 
+and find the adjusted (with trailers) runtime of the longest movie in each genre.
+trailers run for 12 minutes before any film.
+*/
+
+
+
+db.movies.aggregate(pipeline)
+
+
+/* unwind function
+Display the 10 most popular genre? 
+Assume each movie can belong to multiple genres */
+
+
+
+
+db.movies.aggregate(pipeline)
+
+
+// modify the above query. Each movie can represent multiple genres. 
+
+
+
+
+db.movies.aggregate(pipeline)
+
+/* for the movies older than 2001,
+  run time is between 200 and 400,  and rating is over 7.0
+find the best movie (based on the rating) from each genre 
+display avg rating, the title and rating of the best movie.
+*/
+
+
+
+
+
+db.movies.aggregate(pipeline)
+
+/* Modify the above query, find top 5 movies for each genre
+*/
+
+
+
+db.movies.aggregate(pipeline)

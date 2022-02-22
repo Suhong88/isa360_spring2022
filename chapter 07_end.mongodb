@@ -1,0 +1,298 @@
+// MongoDB Playground
+//Creating aggregations functions
+//Run below script on the MongoDB shell
+
+var simpleFind= function() {
+print("Find Result:")
+db.theaters.find(
+    {"location.address.state": "MN"},
+    {"location.address.city": 1})
+    .sort({"location.address.city": 1})
+    .limit(3)
+    .forEach(printjson)
+}
+
+//execute the function
+
+simpleFind()
+
+//create aggregation
+var simpleFindAggrgate=function(){
+    print("aggregation Result:")
+    var pipeline=[
+        {$match: {"location.address.state": "MN"}},
+        {$project: {"location.address.city": 1}},
+        {$sort: {"location.address.city": 1}},
+        {$limit: 3}
+    ];
+    db.theaters.aggregate(pipeline).forEach(printjson)
+};
+
+simpleFindAggrgate();
+
+// Below command can be run in VSC
+/*1. find top 3 movies based on imdb rating for all movies
+in romantic category and released before 2001. 
+Display title, genres, released, and imdb.rating
+sort the result with the highest rating first*/
+
+const pipeline=[
+  {$match: {
+    genres: {$in: ["Romance"]},
+    released: {$lte: new ISODate("2001-01-01")}
+  }},
+  {$project: {
+    "_id":0,
+    "title":1,
+    "genres":1,
+    "released":1,
+    "imdb.rating":1
+  }},
+  {
+    $sort: {"imdb.rating": -1}
+  }
+]
+
+db.movies.aggregate(pipeline)
+
+
+//The Group Stage
+//2. Display number of titles/movies by rated category.
+
+const pipeline=[{
+  $group: {
+    _id: "$rated",
+    "NumTitles": {$sum:1}
+  }
+}
+]
+db.movies.aggregate(pipeline)
+
+//3. Display top 5 rated category based on number of movies
+
+const pipeline=[{
+  $group: {
+    _id: "$rated",
+    "NumTitles": {$sum:1}
+  }},
+  {$sort:{
+    "NumTitles": -1
+  }},
+  {$limit: 5}
+]
+
+db.movies.aggregate(pipeline)
+
+
+//top one is null, remove null
+
+const pipeline=[
+  {$match:
+   {"rated": {$ne: null}}
+  },
+  {
+  $group: {
+    _id: "$rated",
+    "NumTitles": {$sum:1}
+  }},
+  {$sort:{
+    "NumTitles": -1
+  }},
+  {$limit: 5}
+]
+
+db.movies.aggregate(pipeline)
+
+
+/* display top 5 rated movies based on number of moives in that category. 
+Display movie title, total movies, total run time and average run time.
+*/
+
+const pipeline =[{
+  $match:
+    {"rated": {$ne: null}}
+  },
+  {$group: {
+    _id: "$rated",
+    "totalTitles": {$sum: 1},
+    "totalRunTime": {$sum: "$runtime"},
+    "avgRunTime": {$avg: "$runtime"}
+  }},
+  {
+    $sort: {"totalTitles": -1}
+  },
+  {
+    $limit:5
+  }
+]
+
+db.movies.aggregate(pipeline)
+
+
+//format average run time as integer
+
+const pipeline =[{
+  $match:
+    {"rated": {$ne: null}}
+  },
+  {$group: {
+    _id: "$rated",
+    "totalTitles": {$sum: 1},
+    "totalRunTime": {$sum: "$runtime"},
+    "avgRunTime": {$avg: "$runtime"}
+  }},
+  {
+    $sort: {"totalTitles": -1}
+  },
+  {
+    $limit:5
+  },
+  {
+   $project: {
+      "_id": 1,
+      "totalTitles": 1,
+      "totalRunTime": 1,
+      "roundavgRunTime": {$trunc: "$avgRunTime"}
+    }
+  }
+]
+
+db.movies.aggregate(pipeline)
+
+
+/* for only movies older than 2001, find the average and highest rating
+for each genre (use the first genre in the array), 
+sort the genre by average rating, 
+and find the adjusted (with trailers) runtime of the longest movie in each genre.
+trailers run for 12 minutes before any film.
+*/
+
+const pipeline = [
+  {$match: {
+    "released": {$lte: new ISODate("2001-01-01")}
+  }
+  },
+  {$group: {
+    _id: {$arrayElemAt: ["$genres", 0]},
+    "avgRating": {$avg: "$imdb.rating"},
+    "maxRating": {$max: "$imdb.rating"},
+    "longest_runtime": {$max: "$runtime"}
+  }
+  },
+  {$sort: {"avgRating": -1}},
+  {$project: {
+    "_id": 1,
+    "avgRating1": {$round: ["$avgRating",2]},
+    "maxRating":1,
+    "adjusted_runtime": {$add:["$longest_runtime", 12]}
+  }},
+  {$limit:5}
+]
+
+db.movies.aggregate(pipeline)
+
+
+/* unwind function
+Display the 10 most popular genre? 
+Assume each movie can belong to multiple genres */
+
+const pipeline = [
+    {$unwind: "$genres"},
+    {$group:
+    {
+        _id: "$genres",
+        totalMovies: {$sum:1}
+    }
+    },
+    {$sort: {
+        "totalMovies":-1
+    }
+    },
+    {$limit: 10}
+]
+
+db.movies.aggregate(pipeline)
+
+
+// modify the above query. Each movie can represent multiple genres. 
+
+const pipeline = [
+  {$match: {
+    "released": {$lte: new ISODate("2001-01-01")}
+  }
+  },
+  {$unwind: "$genres"}
+  {$group: {
+    _id: {$arrayElemAt: ["$genres", 0]},
+    "avgRating": {$avg: "$imdb.rating"},
+    "maxRating": {$max: "$imdb.rating"},
+    "longest_runtime": {$max: "$runtime"}
+  }
+  },
+  {$sort: {"avgRating": -1}},
+  {$project: {
+    "_id": 1,
+    "avgRating1": {$round: ["$avgRating",2]},
+    "maxRating":1,
+    "adjusted_runtime": {$add:["$longest_runtime", 12]}
+  }},
+  {$limit:5}
+]
+
+db.movies.aggregate(pipeline)
+
+/* for the movies older than 2001,
+  run time is between 200 and 400,  and rating is over 7.0
+find the best movie (based on the rating) from each genre 
+display avg rating, the title and rating of the best movie.
+*/
+
+const pipeline =[
+    {$match: {
+        "released": {$lte: new ISODate("2001-01-01")},
+        "runtime": {$gte: 200, $lte: 400},
+        "imdb.rating": {$gte: 7.0}
+        }
+    },
+    {$unwind: "$genres"},
+    {$sort: {"imdb.rating": -1}},
+    {$group: {
+        _id: "$genres",
+        "avgRating": {$avg: "$imdb.rating"},
+        "best_title": {$max: "$title"},
+        "best_rating": {$max: "$imdb.rating"}
+     }
+    },
+   // {$limit: 5}
+]
+
+db.movies.aggregate(pipeline)
+
+/* Modify the above query, find top 5 movies for each genre
+*/
+
+const pipeline =[
+    {$match: {
+        "released": {$lte: new ISODate("2001-01-01")},
+        "runtime": {$gte: 200, $lte: 400},
+        "imdb.rating": {$gte: 7.0}
+        }
+    },
+    {$unwind: "$genres"},
+    {$sort: {"imdb.rating": -1}},
+    {$group: {
+        _id: "$genres",
+        "avgRating": {$avg: "$imdb.rating"},
+        "titles": {$push: {title: "$title", rating: "$imdb.rating"}}
+     }
+    },
+   // {$limit: 5},
+    {$project: {
+        _id: 1,
+        "avgRating":1,
+        "top_5_titles": {$slice: ["$titles", 0,5]}
+    }
+    }
+]
+
+db.movies.aggregate(pipeline)
