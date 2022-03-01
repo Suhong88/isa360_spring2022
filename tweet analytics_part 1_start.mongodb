@@ -1,0 +1,109 @@
+/* based on the  climate change tweets I collected, I filtered the data to include tweets mentioning health in English and save it 
+into a collection healthImpact. download health impact file, create a collection healthImpact and import the data into the collection
+keyword used to collect tweets: "#climatechange", "#climatechangeisreal", "#globalwarming", "climate change" */
+
+//below code create healthImpact collection for in-class domenstration
+
+const pipeline=[
+    {$match: {"$text": {$search: "health"}}},
+    {$match: {"lang": {$eq: "en"}}},
+    {$out: "healthImpact"}
+]
+
+db.healthImpact.aggregate(pipeline)
+
+//check the totla number of tweets.
+
+db.healthImpact.count()
+
+db.healthImpact.findOne()
+
+//text search
+
+//create an index based on the field you want to search.
+
+db.healthImpact.createIndex({text: "text"})
+
+//$text operator
+
+//find all tweets that include "stress" or "health" in the text.
+
+db.healthImpact.find({$text: 
+    {$search: "health stress"}
+},
+    {"text":1,
+    "created_at":1,
+    "_id":0
+}
+)
+
+//find all tweets that incldue "health problem"
+
+db.healthImpact.find({$text: 
+    {$search: "\"health problem\""}
+},
+    {"text":1,
+    "created_at":1,
+    "_id":0
+}
+)
+
+//find all tweets that incldue "health problem" but not "covid"
+// sort the results in order by relevance score.
+
+const pipeline= [
+    {$match: {$text: 
+        {$search: "\"health problem\" -covid"}
+    }},
+    {$addFields: {score: {$meta: "textScore"}}},
+    {$sort: {score:-1}},
+    {$project:{
+        "text":1,
+        "score":1,
+        "created_at":1
+    }
+    }
+]
+
+db.healthImpact.aggregate(pipeline)
+
+
+// find top 10 users based on number of tweets in this topic.
+
+
+
+
+
+// find more information about those users. for example: number of follower and friends count
+
+
+
+
+//display top 10 users who received the most retweets.
+
+
+
+
+//display top 10 users who received  the most mentions
+
+
+
+//display # of tweets by devices
+
+
+
+//display # of tweets by location
+
+
+
+
+//find top 10 hashtags 
+
+
+
+//#number of tweets by weekday
+
+
+
+
+//top 10 hashtags by weekday

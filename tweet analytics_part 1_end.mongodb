@@ -1,0 +1,276 @@
+/* based on the  climate change tweets I collected, I filtered the data to include tweets mentioning health in English and save it 
+into a collection healthImpact. download health impact file, create a collection healthImpact and import the data into the collection
+keyword used to collect tweets: "#climatechange", "#climatechangeisreal", "#globalwarming", "climate change" */
+
+//below code create healthImpact collection for in-class domenstration
+
+const pipeline=[
+    {$match: {"$text": {$search: "health"}}},
+    {$match: {"lang": {$eq: "en"}}},
+    {$out: "healthImpact"}
+]
+
+db.climate_change.aggregate(pipeline)
+
+//check the totla number of tweets.
+
+db.healthImpact.count()
+
+db.healthImpact.findOne()
+
+//text search
+
+//create an index based on the field you want to search.
+
+db.healthImpact.createIndex({text: "text"})
+
+//$text operator
+
+//find all tweets that include "stress" or "health" in the text.
+
+db.healthImpact.find({$text: 
+    {$search: "health stress"}
+},
+    {"text":1,
+    "created_at":1,
+    "_id":0
+}
+)
+
+//find all tweets that incldue "health problem"
+
+db.healthImpact.find({$text: 
+    {$search: "\"health problem\""}
+},
+    {"text":1,
+    "created_at":1,
+    "_id":0
+}
+)
+
+//find all tweets that incldue "health problem" but not "covid"
+// sort the results in order by relevance score.
+
+const pipeline= [
+    {$match: {$text: 
+        {$search: "\"health problem\" -covid"}
+    }},
+    {$addFields: {score: {$meta: "textScore"}}},
+    {$sort: {score:-1}},
+    {$project:{
+        "text":1,
+        "score":1,
+        "created_at":1
+    }
+    }
+]
+
+db.healthImpact.aggregate(pipeline)
+
+
+// find top 10 users based on number of tweets in this topic.
+
+const pipeline =[
+  {$group: {
+    "_id": "$user.screen_name",
+    "numTweets": {$sum:1}
+  }
+  },
+  {$sort: {"numTweets": -1}},
+  {$limit: 10}
+]
+
+db.healthImpact.aggregate(pipeline)
+
+
+// find more information about those users. number of follower and friends count
+
+const pipeline =[
+  {$group: {
+    "_id": {"user":"$user.screen_name", "followers_count": "$user.followers_count"},
+    "numTweets": {$sum:1}
+  }
+  },
+  {$sort: {"numTweets": -1}},
+  {$limit: 10}
+]
+
+db.healthImpact.aggregate(pipeline)
+
+//display top 10 users who received the most retweets.
+
+const pipeline=[
+    {$match: {"retweeted_status.user.screen_name": {$ne:null}}},
+    {$group: {
+        _id: "$retweeted_status.user.screen_name",
+        "numRetweets": {$sum:1}
+    }},
+    {$sort: {"numRetweets":-1}},
+    {$limit:10},
+    {$project:{
+        "screenName": "$_id",
+        "numRetweets":1,
+        "_id":0
+        }}
+]
+
+db.healthImpact.aggregate(pipeline)
+
+//display top 10 users who received  the most mentions
+
+const pipeline=[
+    {$match: {"entities.user_mentions": {$ne:null}}},
+    {$unwind: "$entities.user_mentions"},
+    {$group: {
+        "_id": "$entities.user_mentions.screen_name",
+        "numMentions": {$sum:1}
+    }},
+    {$sort: {"numMentions": -1}},
+    {$limit: 20},
+    {$project:{
+        "screenName": "$_id",
+        "numMentions":1,
+        "_id":0
+        }}  
+]
+
+db.healthImpact.aggregate(pipeline)
+
+//display # of tweets by devices
+
+const pipeline=[ {$match: {"source": {$ne: ""}}},
+    {$addFields: {"device": { $regexFind: {input: "$source", regex: />.*</ }}}},
+    {$group:{
+        _id: "$device.match",
+        numTweets: {$sum:1}
+    }},
+    {$sort: {"numTweets":-1}},
+    {$limit:30},
+    {$project: {
+        "device": {$substr: ["$_id", 1, {$subtract:[{"$strLenCP":"$_id"}, 2]}]},
+        "_id":0,
+        "numTweets":1
+    }}
+]
+
+
+db.healthImpact.aggregate(pipeline)
+
+
+//display # of tweets by location
+
+const pipeline = [
+   // {$match: {"place": {$ne: null}}},
+     {$group: {
+        "_id": "$place.full_name",
+        "numTweets": {$sum: 1}
+    }},
+    {$sort: {"numTweets":-1}},
+    {$limit:20},
+]
+
+db.healthImpact.aggregate(pipeline)
+
+
+//find top 10 hashtags 
+
+const pipeline=[
+    {$addFields: {"textArray": {$split: ["$text", " "]}}},
+    {$unwind: "$textArray"},
+    {$addFields: {"textArray": {$toLower: "$textArray"}}},
+    {$match: {"textArray": {"$regex":"^#"}}},
+    {$match: {"textArray": {$nin: ["#climatechange", "#climatechangeisreal", "#globalwarming"]}}},
+    {$group: {
+        _id: {"hashtag": "$textArray"},
+        "frequency": {$sum:1}
+    }},
+    {$sort: {"frequency":-1}},
+    {$limit:10}
+]
+
+db.healthImpact.aggregate(pipeline)
+
+// use full-text if exist
+
+const pipeline=[
+    {$addFields: {"text_modi": {
+      $cond: [{$ne: ["$extended_tweet", null]}, "$extended_tweet.full_text", "$text"]
+    }
+    }
+    }, 
+     {$addFields: {"textArray": {$split: ["$text_modi", " "]}}},
+    {$unwind: "$textArray"},
+    {$addFields: {"textArray": {$toLower: "$textArray"}}},
+    {$match: {"textArray": {"$regex":"^#"}}},
+    {$match: {"textArray": {$nin: ["#climatechange", "#climatechangeisreal", "#globalwarming"]}}},
+    {$group: {
+        _id: {"hashtag": "$textArray"},
+        "frequency": {$sum:1}
+    }},
+    {$sort: {"frequency":-1}},
+    {$limit:10}
+]
+
+db.healthImpact.aggregate(pipeline)
+
+// use hashtag entity
+
+const pipeline =[
+    {$unwind: "$entities.hashtags"},
+    {$addFields: {"hashtags": {$toLower: "$entities.hashtags.text"}}},
+    {$match: {"hashtags": {$nin: ["climatechange", "climatechangeisreal", "globalwarming"]}}},
+    {$group: {
+        _id: {"hashtag": "$hashtags"},
+        "frequency": {$sum:1}
+    }},
+    {$sort: {"frequency":-1}},
+    {$limit:10}
+]
+
+db.healthImpact.aggregate(pipeline)
+
+
+//#number of tweets by weekday
+
+const pipeline=[
+  {"$addFields": {"weekday": {"$dayOfWeek": {"$toDate": "$created_at"}}}},
+  {$group: {
+    _id: "$weekday",
+    count: {$sum:1}
+  }},
+  {$sort: {"_id": 1}},
+  {$project: {
+      "weekday": "$_id",
+      "count":1,
+      "_id": 0
+  }}
+  ]
+
+db.healthImpact.aggregate(pipeline)
+
+
+// top 10 hashtags by weekday
+
+const pipeline=[
+    {"$addFields": {"weekday": {"$dayOfWeek": {"$toDate": "$created_at"}}}},
+    {"$addFields": {"textArray": {"$split": ["$text", " "]}}},
+    {"$unwind": "$textArray"},
+    {"$addFields": {"textArray": {"$toLower": "$textArray"}}},
+    {"$match": {"textArray": {"$regex":"^#"}}},
+    {"$match": {"textArray": {"$nin": ["climatechange", "climatechangeisreal", "globalwarming"]}}},
+    {"$group": {
+        "_id": {"weekday": "$weekday", "hashtag":"$textArray"},
+        "frequency": {"$sum":1}
+    }},
+    {"$sort": {"frequency":-1}},
+    {"$group":{
+        "_id": "$_id.weekday",
+        "hashtags": {"$push": {"hashtag": "$_id.hashtag", "frequency": "$frequency"}}
+    }},
+    {"$sort": {"_id":1}},
+    {"$project":{
+        "top10Hashtags": {"$slice":["$hashtags", 0, 10]}
+    }},
+    ]
+
+db.healthImpact.aggregate(pipeline)
