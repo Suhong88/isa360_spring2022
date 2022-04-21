@@ -26,6 +26,11 @@ CALL apoc.spatial.reverseGeocode(latitude, longitude)
 YIELD location
 set t.location= location.description
 
+//remove a property
+
+match(u: User)
+remove u.ev
+
 //check degree centrality.
 
 //Out-degree (top users who received retweets from the most users)
@@ -38,8 +43,8 @@ limit 10
 //uses who have the highest number of retweets
 
 match (u1:User)-[r:IS_RETWEETED_BY]->(u2:User)
-return u1.name, sum(r.numRetweets) as outDegree
-order by outDegree desc
+return u1.name, sum(r.numRetweets) as totalRetweets
+order by totalRetweets desc
 limit 10
 
 
@@ -53,8 +58,8 @@ limit 10
 //use who had the most tweets
 
 match (u1:User)-[r:IS_RETWEETED_BY]->(u2:User)
-return u2.name, sum(r.numRetweets) as inDegree
-order by inDegree desc
+return u2.name, sum(r.numRetweets) as totalTweets
+order by totalTweets desc
 limit 10
 
 //total degree
@@ -96,10 +101,11 @@ ORDER BY score desc
 
 
 //write pageRank score back to the node
+
 CALL gds.pageRank.write(
     "myGraph", {
         relationshipWeightProperty: "weight",
-         writeProperty:"pr"
+         writeProperty:"pageRank"
     }
 )
 
@@ -136,6 +142,13 @@ YIELD nodeId, score as score
 RETURN gds.util.asNode(nodeId).name as user, score
 ORDER BY score DESC
 
+
+//store eigenvector back to node
+
+CALL gds.alpha.eigenvector.write("myGraph", {
+    writeProperty:"eigenvector"
+}) 
+
 //Closeness Centrality
 
 CALL gds.alpha.closeness.stream("myGraph", {}) 
@@ -143,9 +156,18 @@ YIELD nodeId, centrality as score
 RETURN gds.util.asNode(nodeId).name as user, score
 ORDER BY score DESC
 
+
+
+
 // Betweenness centrality
 
 CALL gds.betweenness.stream("myGraph", {})
 YIELD nodeId,  score
 RETURN gds.util.asNode(nodeId).name as user, score
 ORDER BY score DESC
+
+//write the reult back
+
+CALL gds.betweenness.write("myGraph", {
+    writeProperty:"betweenness"
+})
